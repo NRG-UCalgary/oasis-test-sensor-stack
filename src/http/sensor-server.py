@@ -1,4 +1,7 @@
 import flask
+import os
+
+server_port = os.environ["SERVER_PORT"]
 
 app = flask.Flask(__name__)
 app.config['DEBUG']
@@ -7,4 +10,5 @@ app.config['DEBUG']
 def something():
     return 'ok!'
 
-app.run(host='0.0.0.0', port='8888')
+app.run(host='0.0.0.0', port=server_port)
+
