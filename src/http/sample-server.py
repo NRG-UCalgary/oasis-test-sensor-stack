@@ -7,4 +7,4 @@ app.config['DEBUG']
 def something():
     return 'ok!'
 
-app.run(port='8888')
+app.run(host='0.0.0.0', port='8888')
