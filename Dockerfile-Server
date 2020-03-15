@@ -1,0 +1,20 @@
+FROM python:3.7
+
+# Install flask
+RUN pip3 install flask
+
+# Copy the server script into the root
+COPY ./src/http/sensor-server.py /app.py
+
+# Set some environment variables
+# Note: This is the default value and it can be changed according to the desired settings
+ENV SERVER_PORT=8888 
+
+# These env-variables are needed to be able to see 
+# see the logs when running `docker logs` command
+ENV PYTHONIOENCODING=UTF-8
+ENV PYTHONBUFFERED=1
+
+CMD ["python3", "/app.py"]
+
+
