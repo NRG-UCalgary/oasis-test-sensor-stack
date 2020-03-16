@@ -6,13 +6,17 @@ FROM python:3.7
 RUN pip3 install requests
 
 # Copy the humidity dataset into `/dataset/` directory
-COPY ./dataset/hum.txt /dataset/hum.txt # Note: Change according to the desired dataset
+# Note: Change according to the desired dataset
+COPY ./dataset/hum.txt /dataset/hum.txt
 COPY ./src/http/sensor-app.py /app.py
 
 # Set some environment variables
-ENV SENSOR_TYPE="Humidity"              # Note: Change according to the desired dataset
-ENV DATASET_PATH="/dataset/hum.txt"     # Note: Change according to the desired dataset
-ENV SLEEP_TIME=0.01                     # Time interval between each data transmission
+# Note: Change according to the desired dataset
+ENV SENSOR_TYPE="Humidity"
+# Note: Change according to the desired dataset
+ENV DATASET_PATH="/dataset/hum.txt"
+# Time interval between each data transmission
+ENV SLEEP_TIME=0.01
 
 # These env-variables are needed to make sure 
 # that the throughput of the program is shown 
