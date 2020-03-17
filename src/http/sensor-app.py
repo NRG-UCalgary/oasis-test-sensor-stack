@@ -33,7 +33,7 @@ def update_throughput():
     # Update the start_time every 1s
     if (time_diff > 1000):
         start_time = time()
-        print("Throughput: ", throughput)
+        print("{throughput: {}}".format(throughput))
         throughput = 0
 
 
