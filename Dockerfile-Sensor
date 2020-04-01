@@ -16,7 +16,7 @@ ENV SENSOR_TYPE="Humidity"
 # Note: Change according to the desired dataset
 ENV DATASET_PATH="/dataset/hum.txt"
 # Time interval between each data transmission
-ENV SLEEP_TIME=0.01
+ENV SLEEP_TIME=0.5
 
 # These env-variables are needed to make sure 
 # that the throughput of the program is shown 
