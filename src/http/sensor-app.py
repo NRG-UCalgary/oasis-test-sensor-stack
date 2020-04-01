@@ -10,6 +10,8 @@ import requests
 import json
 import os
 from time import time
+from time import strftime
+from time import localtime
 from random import randint
 import threading
 
@@ -18,25 +20,33 @@ sleep_time = float(os.environ['SLEEP_TIME'])
 target_url = os.environ['TARGET_URL']
 
 # Number of requests sent in second
-throughput = 0
+number_of_reqs = 0
+total_rtt = 0
 
 # Base time 
 start_time = time() 
 
-def update_throughput():
-    global throughput
+def update_metrics(req_rtt):
+    global number_of_reqs 
     global start_time
+    global total_rtt
 
-    throughput = throughput + 1
+    number_of_reqs = number_of_reqs + 1
     time_diff = (time() - start_time) * 1000
+    total_rtt = total_rtt + req_rtt
     
     # Update the start_time every 1s
     if (time_diff > 1000):
         start_time = time()
         data = {}
-        data["throughput"] = throughput
+
+        data["number_of_reqs"] = number_of_reqs 
+        data["time"] = strftime("%H: %M: %S", localtime()) 
+        data["avg_rtt"] = total_rtt / number_of_reqs
+
         print(json.dumps(data))
-        throughput = 0
+        number_of_reqs = 0
+        total_rtt = 0
 
 
 # Reads all the lines from a given file and returns them
@@ -67,8 +77,8 @@ def run_task():
 
     random_data = get_random_datapoint(dataset)
     x = send_request(target_url, random_data)
-    
-    update_throughput()
+        
+    update_metrics(x.elapsed.total_seconds())
 
     threading.Timer(sleep_time, run_task).start()
 
