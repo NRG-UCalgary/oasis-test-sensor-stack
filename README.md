@@ -7,7 +7,6 @@ A sample sensor stack code consisting of two components:
     - Server passively receives data from sensors
 
 # TODO:
- - Dockerize sensor code
  - Implement the stack using CoAP instead of HTTP
 
 # NOTE: 
