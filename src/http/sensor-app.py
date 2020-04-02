@@ -104,7 +104,11 @@ def main():
     hostname = os.environ["HOSTNAME"]
 
     if (("MODE" in os.environ) and (os.environ["MODE"] in ["DEBUG", "INFO"])):
-        logging.basicConfig(filename="/var/log/{}.log".format(hostname), level=logging.INFO)
+        log_dir = "/var/log"
+        if ("LOG_PATH" in os.environ):
+            log_dir = os.environ["LOG_PATH"]
+        logging.basicConfig(filename="{}/{}.log".format(log_dir, hostname), level=logging.INFO)
+        
 
     run_task(experiment_mode=False) 
     
