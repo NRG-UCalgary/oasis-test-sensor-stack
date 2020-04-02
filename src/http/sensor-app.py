@@ -14,6 +14,7 @@ from time import strftime
 from time import localtime
 from random import randint
 import threading
+import logging
 
 dataset_path = os.environ['DATASET_PATH']
 sleep_time = float(os.environ['SLEEP_TIME'])
@@ -26,10 +27,14 @@ total_rtt = 0
 # Base time 
 start_time = time() 
 
-def update_metrics(req_rtt):
+def update_metrics(req_rtt, experiment_mode=False):
     global number_of_reqs 
     global start_time
     global total_rtt
+    global sleep_time
+    step = 0.01
+    timer_lower_bound = 0.01
+
 
     number_of_reqs = number_of_reqs + 1
     time_diff = (time() - start_time) * 1000
@@ -40,11 +45,18 @@ def update_metrics(req_rtt):
         start_time = time()
         data = {}
 
+        if (experiment_mode == True):
+            sleep_time = sleep_time - step
+
         data["number_of_reqs"] = number_of_reqs 
         data["time"] = strftime("%H: %M: %S", localtime()) 
         data["avg_rtt"] = total_rtt / number_of_reqs
+        data["interval"] = sleep_time
 
         print(json.dumps(data))
+        if (("MODE" in os.environ) and (os.environ["MODE"] in ["DEBUG", "INFO"])):
+            logging.info(json.dumps(data))
+
         number_of_reqs = 0
         total_rtt = 0
 
@@ -72,19 +84,33 @@ def send_request(url, payload, method='POST'):
 # 2- Selects a random data record
 # 3- Sends an HTTP request to the given server URL
 # 4- Sets up another thread to do it all over again
-def run_task():
+def run_task(experiment_mode=False):
     dataset = read_data(dataset_path)
-
     random_data = get_random_datapoint(dataset)
     x = send_request(target_url, random_data)
-        
-    update_metrics(x.elapsed.total_seconds())
+    timer_lower_bound = 0.01
 
-    threading.Timer(sleep_time, run_task).start()
+    update_metrics(x.elapsed.total_seconds(), experiment_mode)
+    if (experiment_mode is False):
+        threading.Timer(sleep_time, run_task).start()
+    else:
+        if (sleep_time > timer_lower_bound):
+            threading.Timer(sleep_time, run_task, [True]).start()
+        else:
+            threading.Timer(timer_lower_bound, run_task, [True]).start()
 
 
 def main():
-   run_task() 
+    hostname = os.environ["HOSTNAME"]
+
+    if (("MODE" in os.environ) and (os.environ["MODE"] in ["DEBUG", "INFO"])):
+        log_dir = "/var/log"
+        if ("LOG_PATH" in os.environ):
+            log_dir = os.environ["LOG_PATH"]
+        logging.basicConfig(filename="{}/{}.log".format(log_dir, hostname), level=logging.INFO)
+        
+
+    run_task(experiment_mode=False) 
     
 
 main()
